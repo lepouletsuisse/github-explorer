@@ -9,6 +9,6 @@
 	 * Module of the app
 	 */
 
-  	angular.module('page2', ['chart.js','jquery']);
+  	angular.module('page2', ['chart.js']);
 
 })();
