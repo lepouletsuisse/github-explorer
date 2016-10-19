@@ -15,7 +15,7 @@
 
 		Page2.$inject = [];
 
-		/*
+				/*
 		* recommend
 		* Using function declarations
 		* and bindable members up top.
@@ -28,10 +28,15 @@
 			vm.labels = ["Pomme", "Banane", "Poire"];
 			vm.data = [30, 25, 60];
 
-		}
+			vm.owner = "NULL";
+			vm.repo = "NULL";
 
-		function submit(){
-			$("#result").empty.append("prout");
+			vm.result = "";
+
+			function submit() {
+				consol.log("test");
+				vm.result = "Owner: " + vm.owner + " // Repo: " + vm.repo;
+			}
 		}
 
 })();
