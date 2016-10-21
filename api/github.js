@@ -1,25 +1,27 @@
 var MongoClient = require("mongodb").MongoClient;
 var express = require("express"),
-    app = express.createServer();
+    router = express.Router();
 
-app.use(express.logger());
-
-app.get('/', function(req, res){
+router.post('/', function(req, res){
     var context = {};
     context.data = {"owner" : req.query.owner, "repo": req.query.repo};
-    context.owner = owner;
-    context.repo = repo;
-    saveData(context);
+    saveData(context).then(
+        function(context){
+            console.log("API: Success // " + JSON.stringify(context.data));
+            res.send(context.data);
+        } 
+    ).catch(function(err){
+        console.log("API: Error");
+        console.log(err.stack);
+        res.status(500).send(err);
+    });
 });
-
-app.listen();
-console.log('Express server started on port %s', app.address().port);
 
 function saveData(context){
     
     context.db_url = "mongodb://192.168.99.100:27017/githubexplorer";
     return openDatabaseConnection(context)
-        .then(saveData)
+        .then(save)
         .then(closeDatabaseConnection);
 }
 
@@ -32,7 +34,7 @@ function openDatabaseConnection(context){
             return context;
         });
 }
-function saveData(context){
+function save(context){
     console.log("Saving data...");
     var collection = context.db.collection("repo");
     return collection.insert(context.data)
@@ -50,12 +52,4 @@ function closeDatabaseConnection(context){
         })
 }
 
-saveData()
-    .then(function(result){
-        console.log("We are done");
-        console.log(result);
-    })
-    .catch(function(error){
-        console.log("Error");
-        console.log(error); 
-    });
+module.exports = router;

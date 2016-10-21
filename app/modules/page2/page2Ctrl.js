@@ -13,29 +13,27 @@
 		.module('page2')
 		.controller('Page2Ctrl', Page2);
 
-		Page2.$inject = [];
+		Page2.$inject = ['Page2Service'];
 
-				/*
+		/*
 		* recommend
 		* Using function declarations
 		* and bindable members up top.
 		*/
 
-		function Page2() {
+		function Page2(Page2Service) {
 			/*jshint validthis: true */
 			var vm = this;
 
 			vm.labels = ["Pomme", "Banane", "Poire"];
 			vm.data = [30, 25, 60];
 
-			vm.owner = "NULL";
-			vm.repo = "NULL";
-
 			vm.result = "";
 
-			function submit() {
-				consol.log("test");
-				vm.result = "Owner: " + vm.owner + " // Repo: " + vm.repo;
+			vm.submit = function(){
+				Page2Service.getData(vm.owner, vm.repo).then(function(data){
+					vm.result = data;
+				});
 			}
 		}
 

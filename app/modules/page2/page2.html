@@ -2,10 +2,10 @@
 
     <h2>Give the owner and the repo that you want on Github</h2>
 
-    <form name="form">
+    <form name="form" ng-submit="vm.submit()">
         <label>Owner: </label><input ng-model="vm.owner" name="owner" type="text">
         <label>Repo: </label><input ng-model="vm.repo" name="repo" type="text">
-        <button ng-click="vm.submit()">Save</button>
+        <button type="submit">Save</button>
     </form>
 
     <div>{{vm.result}}</div>
