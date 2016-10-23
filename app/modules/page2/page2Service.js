@@ -19,10 +19,21 @@
 
 		function Page2Service ($http) {
 			return {
-				getData: function(owner, repo){
+				sendData: function(owner, repo){
 					return $http({url: "/api", method: "POST", params: {"owner": owner, "repo": repo}}).then(function(res){
-						console.log(res.data);
 						return res.data;
+					});
+				},
+				getDataOnGithub: function(owner, repo){
+					var OAuth = "9f696152f44e7ffb6d3d35b4bd232962426f9b14"
+					$http.defaults.headers.common.Authorization = 'Basic ' + OAuth;
+					return $http({
+						url: "https://api.github.com/repos/"+ owner +"/" + repo + "/commits", 
+						method: "GET"
+					}).then(function(res){
+						return res.data;
+					}).catch(function(err){
+						throw err;
 					});
 				}
 			};

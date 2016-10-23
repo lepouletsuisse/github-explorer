@@ -4,7 +4,9 @@ var express = require("express"),
 
 router.post('/', function(req, res){
     var context = {};
-    context.data = {"owner" : req.query.owner, "repo": req.query.repo};
+    context.owner = req.query.owner;
+    context.repo = req.query.repo;
+    context.data = {"owner" : context.owner, "repo": context.repo};
     saveData(context).then(
         function(context){
             console.log("API: Success // " + JSON.stringify(context.data));
@@ -18,7 +20,6 @@ router.post('/', function(req, res){
 });
 
 function saveData(context){
-    
     context.db_url = "mongodb://192.168.99.100:27017/githubexplorer";
     return openDatabaseConnection(context)
         .then(save)
@@ -37,11 +38,16 @@ function openDatabaseConnection(context){
 function save(context){
     console.log("Saving data...");
     var collection = context.db.collection("repo");
-    return collection.insert(context.data)
+
+    return collection.find({"owner": context.owner, "repo": context.repo}, function(err, items){
+        console.log(items);
+        return context;
+    });
+        /*collection.insert(context.data)
         .then(function(results){
             console.log("Data saved!");
             return context;
-        })
+             });*/
 }
 function closeDatabaseConnection(context){
     console.log("Closing the connection to database...");

@@ -1,0 +1,5 @@
+Lancer MongoDb: docker run -p 27017:27017 mongo:latest
+Connection à MongoDb: docker run -it mongo:latest mongo --host 192.168.99.100
+Créé DB: use demo
+entré: db.fruits.insert({name: "banana", color: "yellow"})
+Query le contenue: db.fruits.find({})
