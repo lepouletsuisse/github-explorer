@@ -60,8 +60,8 @@ function fetchAndSaveData(context){
 
 function openDatabaseConnection(context){
     console.log("Opening the connection to database...");
-    context.db_url = "mongodb://heroku_3vv2d8p3:7as5jokjvkf344292bfu55mbku@ds023455.mlab.com:23455/heroku_3vv2d8p3"
-    //context.db_url = "mongodb://192.168.99.100:27017/githubexplorer";
+    //context.db_url = "mongodb://heroku_3vv2d8p3:7as5jokjvkf344292bfu55mbku@ds023455.mlab.com:23455/githubexplorer";
+    context.db_url = "mongodb://192.168.99.100:27017/githubexplorer";
     return MongoClient.connect(context.db_url)
         .then(function(db){
             context.db = db
