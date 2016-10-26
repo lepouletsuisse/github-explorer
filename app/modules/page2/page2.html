@@ -2,6 +2,9 @@
 
     <h2>Give the owner and the repo that you want on Github</h2>
 
+    <h3>Here it is a list of your old queries</h3>
+    <div compile="vm.oldData" ng-init="vm.initData()"></div>
+
     <form name="form" ng-submit="vm.submit()">
         <label>Owner: </label><input ng-model="vm.owner" name="owner" type="text">
         <label>Repo: </label><input ng-model="vm.repo" name="repo" type="text">
@@ -10,7 +13,7 @@
 
     <div ng-bind-html="vm.err" ng-style="{'color': 'red'}"></div>
 
-    <h2>Here it is the graph for your query!</h2>
+    <h2>Here it is the graph showing your commit over the time!</h2>
     <canvas 
         id="line" 
         class="chart chart-line" 
@@ -19,4 +22,5 @@
         chart-series="vm.series" 
         chart-options="vm.options">
     </canvas>
+
 </div>
