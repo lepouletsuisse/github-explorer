@@ -23,7 +23,7 @@ router.get('/', function(req, res){
 
 router.post('/', function(req, res){
     var context = {};
-    //var OAuth = "9f696152f44e7ffb6d3d35b4bd232962426f9b14";
+    var OAuth = process.env.GITHUB_OAUTH;
     context.owner = req.query.owner;
     context.repo = req.query.repo;
     context.apiOptions = {
@@ -31,8 +31,8 @@ router.post('/', function(req, res){
         method: "GET",
         headers: {
             'User-Agent': 'GitHub Explorer by Le Poulet Suisse',
-            'Accept': 'application/vnd.github.v3+json'
-            //'Authorization': 'token ' + OAuth
+            'Accept': 'application/vnd.github.v3+json',
+            'Authorization': 'token ' + OAuth
         }
     };
     fetchAndSaveData(context)
