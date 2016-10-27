@@ -25,7 +25,7 @@
 						return res.data;
 					})
 					.error(function(data, status, headers, config, statusText){
-						console.log("data: " + data + " // status: " + status + " // headers: " + headers + " // config: " + config + " // statusText: " + statusText)
+						vm.err = data;					
 					});
 				},
 				getOldData: function(){
@@ -34,8 +34,8 @@
 						return res.data;
 					})
 					.error(function(data, status, headers, config, statusText){
-						console.log("data: " + data + " // status: " + status + " // headers: " + headers + " // config: " + config + " // statusText: " + statusText)
-					});;
+						vm.err = data;
+					});
 				}
 
 			};

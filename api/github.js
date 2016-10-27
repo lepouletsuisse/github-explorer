@@ -78,11 +78,11 @@ function fetchAndSaveData(context){
 }
 
 /**
- * Open a connection with the Mango DB
+ * Open a connection with the Mongo DB
  */
 function openDatabaseConnection(context){
     console.log("Opening the connection to database...");
-    context.db_url = process.env.MANGODB_URI;
+    context.db_url = process.env.MONGODB_URI;
     return MongoClient.connect(context.db_url)
         .then(function(db){
             context.db = db
