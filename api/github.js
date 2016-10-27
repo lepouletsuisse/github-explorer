@@ -3,9 +3,19 @@ var express = require("express"),
     router = express.Router();
 var request = require("request-promise");
 
+/**
+ * This is the API for GitHub Explorer. This API allow you to do 2 type of request: GET and POST. 
+ */
+
+/**
+ * The GET request is simply a query in the DB to get all the old queries that has been made in the past.
+ */
 router.get('/', function(req, res){
     var context = {};
-    
+    context.status = 500;
+    context.errMessage = "Unknow error occured!";
+
+
     return openDatabaseConnection(context)
     .then(getCollection)
     .then(queryAllData)
@@ -17,13 +27,19 @@ router.get('/', function(req, res){
     .catch(function(err){
         console.log("API: Error");
         console.log(err.stack);
-        res.status(500).send(err);
+        res.status(context.status).send(context.errMessage);
     });
 });
 
+/**
+ * The POST request allow you to ask for precise data in a owner/repo. This will return all the data the API got on a specific request 
+ * and do the request on GitHub API if it doesn't have any data about it.
+ */
 router.post('/', function(req, res){
     var context = {};
-    var OAuth = process.env.GITHUB_OAUTH;
+    context.status = 500;
+    context.errMessage = "Unknow error occured!";
+    var OAuth = process.env.GITHUB_OAUTH; //OAUTH2 authenticator on GitHub API
     context.owner = req.query.owner;
     context.repo = req.query.repo;
     context.apiOptions = {
@@ -43,14 +59,17 @@ router.post('/', function(req, res){
     .catch(function(err){
         console.log("API: Error");
         console.log(err.stack);
-        res.status(500).send(err);
+        res.status(context.status).send(context.errMessage);
     });
 });
 
+/** 
+ * Check if he got any data about a owner/repo in the DB and if not, query GitHub API to get some.
+*/
 function fetchAndSaveData(context){
     return openDatabaseConnection(context)
         .then(getCollection)
-        .then(getDataInDB)
+        .then(queryData)
         .then(checkData)
         .then(fetchData)
         .then(updateData)
@@ -58,10 +77,12 @@ function fetchAndSaveData(context){
         .then(closeDatabaseConnection);
 }
 
+/**
+ * Open a connection with the Mango DB
+ */
 function openDatabaseConnection(context){
     console.log("Opening the connection to database...");
-    context.db_url = "mongodb://heroku_3vv2d8p3:7as5jokjvkf344292bfu55mbku@ds023455.mlab.com:23455/heroku_3vv2d8p3";
-    //context.db_url = "mongodb://192.168.99.100:27017/githubexplorer";
+    context.db_url = process.env.MANGODB_URI;
     return MongoClient.connect(context.db_url)
         .then(function(db){
             context.db = db
@@ -70,21 +91,37 @@ function openDatabaseConnection(context){
         })
         .catch(function(err){
             console.log("Error while connecting! " + err);
+            context.errMessage = "Internal server error!";
+            throw err;
         });
 }
 
+/**
+ * Get the collection in the DB. The name of the collection is set as a heroku env variable.
+ */
 function getCollection(context){
-    console.log("Getting and setting the collection 'repo'...");
-    var collection = context.db.collection("repo");
+    var collectionName = process.env.COLLECTION_NAME;
+    console.log("Getting and setting the collection '" + collectionName + "'...");
+    var collection = context.db.collection(collectionName);
+    if(collection == undefined){
+        console.log("Error while connecting! " + err);
+        context.errMessage = "Internal server error!";
+        throw new Error("Unable to get collection " + collectionName + " from the DB!");
+    }
     context.collection = collection;
     return context;
 }
 
+/**
+ * If we found no data, we query GitHub API to get some data about a repo.
+ */
 function fetchData(context){
     if(context.dataExist == true){
         return context;
     }
+    //The data doesn't exists in the DB
     console.log("Fetching data...");
+    //Request on GitHub API
     return request(context.apiOptions)
         .then(function(data){
             console.log("Data fetched!");
@@ -92,15 +129,21 @@ function fetchData(context){
             return context;
         }).catch(function(err){
             console.log("Error while fetching! " + err);
+            context.errMessage = "The owner/repo couldn't be found on GitHub!";
             throw err;
         });
 }
 
+/**
+ * Add the data fetched to the DB 
+ */
 function insertData(context){
     if(context.dataExist == true){
         return context;
     }
+    //The data doesn't exist
     console.log("Saving data...");
+    //Insert the data in the DB
     return context.collection.insert({
         'owner': context.owner,
         'repo': context.repo,
@@ -110,16 +153,26 @@ function insertData(context){
     .then(function(result){
         console.log("Data saved!");
         return context;
+    })
+    .catch(function(err){
+        console.log("Error while inserting! " + err);
+        context.errMessage = "Internal server error!";
+        throw err;
     });
 }
 
+/**
+ * Check if the data exists in the DB
+ */
 function checkData(context){
     console.log("Checking data...");
     if(context.queried.length == 0){
+        //Doesn't exist
         context.dataExist = false;
         context.count = 1;
         console.log("Data doesn't exist!");
     }else{
+        //Exist
         context.dataExist = true;
         context.count = context.queried[0].count + 1;
         context.data = context.queried[0].data;
@@ -128,34 +181,60 @@ function checkData(context){
     return context;
 }
 
+//Update the 'count' field in the DB if the data already exist.
 function updateData(context){
     if(context.dataExist == false){
         return context;
     }
+    //The data exist in the DB
     console.log("Updating data...");
     return context.collection.updateOne({"owner": context.owner, "repo": context.repo},{$set: {"count": context.count}})
     .then(function(result){
         return context;
+    })
+    .catch(function(err){
+        console.log("Error while updating! " + err);
+        context.errMessage = "Internal server error!";
+        throw err;
     });
 }
 
-function getDataInDB(context){
+/**
+ * Get the data in the DB using the owner and repo specified in the context
+ */
+function queryData(context){
     return context.collection.find({"owner": context.owner, "repo": context.repo}).toArray()
     .then(function(result) {
         context.queried = result;
         return context;
+    })
+    .catch(function(err){
+        console.log("Error while trying to find the data in the DB! " + err);
+        context.errMessage = "Internal server error!";
+        throw err;
     });
 }
 
+/**
+ * Get all the data in the DB
+ */
 function queryAllData(context){
     return context.collection.find({},{"owner": 1, "repo": 1, "count": 1, "data": 1}).toArray()
     .then(function(result) {
         console.log("All data finded!");
         context.queried = result;
         return context;
+    })
+    .catch(function(err){
+        console.log("Error while trying to find the data in the DB! " + err);
+        context.errMessage = "Internal server error!";
+        throw err;
     });
 }
 
+/**
+ * Close the connection to the DB
+ */
 function closeDatabaseConnection(context){
     console.log("Closing the connection to database...");
     return context.db.close()
@@ -164,7 +243,8 @@ function closeDatabaseConnection(context){
             return context;
         })
         .catch(function(err){
-            console.log("Error while closing DB! " + err);
+            console.log("Error while closing the DB! " + err);
+            context.errMessage = "Internal server error!";
             throw err;
         })
 }

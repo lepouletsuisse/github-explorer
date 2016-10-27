@@ -20,12 +20,17 @@
 		function Page2Service ($http) {
 			return {
 				getDataOnGithub: function(owner, repo){
-					return $http({url: "/api", method: "POST", params: {"owner": owner, "repo": repo}}).then(function(res){
+					return $http({url: "/api", method: "POST", params: {"owner": owner, "repo": repo}})
+					.then(function(res){
 						return res.data;
+					})
+					.error(function(data, status, headers, config, statusText){
+						console.log("data: " + data + " // status: " + status + " // headers: " + headers + " // config: " + config + " // statusText: " + statusText)
 					});
 				},
 				getOldData: function(){
-					return $http({url: "/api", method: "GET"}).then(function(res){
+					return $http({url: "/api", method: "GET"})
+					.then(function(res){
 						return res.data;
 					});
 				}

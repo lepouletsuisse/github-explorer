@@ -93,7 +93,7 @@
 				})
 				.then(parseResultForChart)
 				.catch(function(err){
-					vm.err = "The combination owner/repo is not valid!";
+					vm.err = "A probleme occured while your querry! Your repo/owner is probably wrong!";
 				})
 				.then(function(){
 					vm.initData();
