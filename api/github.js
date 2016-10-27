@@ -15,11 +15,7 @@ router.get('/', function(req, res){
     context.status = 500;
     context.errMessage = "Unknow error occured!";
 
-
-    return openDatabaseConnection(context)
-    .then(getCollection)
-    .then(queryAllData)
-    .then(closeDatabaseConnection)
+    return getAllData(context)
     .then(function(){
         console.log("API: Success");
         res.send(context.queried);
@@ -63,6 +59,36 @@ router.post('/', function(req, res){
     });
 });
 
+/**
+ * The DELETE request allow you to delete all the data in the DB. In fact, we could say it's not secure or whatever.
+ * But in this case, data in the DB are only informative and are not really usefull because we can re-query them on github.
+ */
+router.delete('/', function(req, res){
+    var context = {};
+    context.status = 500;
+    context.errMessage = "Unknow error occured!";
+    deleteOldData(context)
+    .then(function(context){
+        console.log("API: Success");
+        res.send(context.data);
+    })
+    .catch(function(err){
+        console.log("API: Error");
+        console.log(err.stack);
+        res.status(context.status).send(context.errMessage);
+    });
+});
+
+/**
+ * Delete all the data in the DB
+ */
+function deleteOldData(context){
+    return openDatabaseConnection(context)
+    .then(getCollection)
+    .then(dropCollection)
+    .then(closeDatabaseConnection);
+}
+
 /** 
  * Check if he got any data about a owner/repo in the DB and if not, query GitHub API to get some.
 */
@@ -74,6 +100,16 @@ function fetchAndSaveData(context){
         .then(fetchData)
         .then(updateData)
         .then(insertData)
+        .then(closeDatabaseConnection);
+}
+
+/**
+ * Get all the old data in the DB
+ */
+function getAllData(context){
+    return openDatabaseConnection(context)
+        .then(getCollection)
+        .then(queryAllData)
         .then(closeDatabaseConnection);
 }
 
@@ -91,9 +127,27 @@ function openDatabaseConnection(context){
         })
         .catch(function(err){
             console.log("Error while connecting! " + err);
-            context.errMessage = "Internal server error! (DB open)";
+            context.errMessage = "Internal server error!";
             throw err;
         });
+}
+
+/**
+ * Drop the collection to delete all the data
+ */
+function dropCollection(context){
+    console.log("Droping collection...");
+    return context.collection.drop()
+    .then(function(){
+        console.log("Collection correctly dropped!");
+        context.data = "All data has been deleted succesfully!";
+        return context;
+    })
+    .catch(function(err){
+        console.log("Error while dropping the collection! " + err);
+        context.errMessage = "Couldn't delete the data!";
+        throw err;
+    });
 }
 
 /**
@@ -105,7 +159,7 @@ function getCollection(context){
     var collection = context.db.collection(collectionName);
     if(collection == undefined){
         console.log("Error while connecting! " + err);
-        context.errMessage = "Internal server error! (collection)";
+        context.errMessage = "Internal server error!";
         throw new Error("Unable to get collection " + collectionName + " from the DB!");
     }
     context.collection = collection;
@@ -113,7 +167,7 @@ function getCollection(context){
 }
 
 /**
- * If we found no data, we query GitHub API to get some data about a repo.
+ * Query GitHub API to get some data about a repo.
  */
 function fetchData(context){
     if(context.dataExist == true){
@@ -156,7 +210,7 @@ function insertData(context){
     })
     .catch(function(err){
         console.log("Error while inserting! " + err);
-        context.errMessage = "Internal server error! (Insert)";
+        context.errMessage = "Internal server error!";
         throw err;
     });
 }
@@ -194,7 +248,7 @@ function updateData(context){
     })
     .catch(function(err){
         console.log("Error while updating! " + err);
-        context.errMessage = "Internal server error! (Update)";
+        context.errMessage = "Internal server error!";
         throw err;
     });
 }
@@ -210,7 +264,7 @@ function queryData(context){
     })
     .catch(function(err){
         console.log("Error while trying to find the data in the DB! " + err);
-        context.errMessage = "Internal server error! (find one)";
+        context.errMessage = "Internal server error!";
         throw err;
     });
 }
@@ -227,7 +281,7 @@ function queryAllData(context){
     })
     .catch(function(err){
         console.log("Error while trying to find the data in the DB! " + err);
-        context.errMessage = "Internal server error! (find all)";
+        context.errMessage = "Internal server error!";
         throw err;
     });
 }
@@ -244,7 +298,7 @@ function closeDatabaseConnection(context){
         })
         .catch(function(err){
             console.log("Error while closing the DB! " + err);
-            context.errMessage = "Internal server error! (close)";
+            context.errMessage = "Internal server error!";
             throw err;
         })
 }

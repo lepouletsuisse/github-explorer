@@ -2,16 +2,16 @@
 	'use strict';
 
 	/**
-	* @ngdoc function
-	* @name app.controller:page2Ctrl
-	* @description
-	* # page2Ctrl
-	* Controller of the app
+	* Controller for the Page 2
 	*/
 
   	angular
 		.module('page2')
 		.controller('Page2Ctrl', Page2)
+		//I had to use a custom directive for beeing able to inject some HTML code (The links of old data) in the HTML file. 
+		//The default directive "ng-html-bind" didn't accept the ng tag "ng-click". 
+		//Found on http://stackoverflow.com/questions/17417607/angular-ng-bind-html-and-directive-within-it
+		//Used as found.
 		.directive('compile', ['$compile', function ($compile) {
 			return function(scope, element, attrs) {
 				scope.$watch(
@@ -36,49 +36,47 @@
 
 		Page2.$inject = ['Page2Service'];
 
-		/*
-		* recommend
-		* Using function declarations
-		* and bindable members up top.
-		*/
-
 		function Page2(Page2Service) {
 			/*jshint validthis: true */
 			var vm = this;
 
-			//Just for test
-			vm.owner = "lepouletsuisse";
-			vm.repo = "Christophe-Samuel";
-
+			//initialisation of the base value
 			vm.labels = [""];
 			vm.data = [[0]];
 			vm.series = [];
 			vm.options = {};
+
+			vm.owner = "";
+			vm.repo = "";
 
 			vm.result = "";
 			vm.err = "";
 
 			vm.oldDataDict = {}
 
-			// Init the old data
-			vm.initData = function(){
+			//Get old queries from the API
+			vm.getOldQueries = function(){
+				//Get the old queries
 				Page2Service.getOldData()
 				.then(function(data){
-					var str = "";
-					//TODO: Faire les liens cliquable
-					angular.forEach(data, function(entry){
-						str += "<a ng-click=\"vm.clickOldData('" + entry._id + "')\">Owner: " + entry.owner + " - Repo: " + entry.repo + " - Count: " + entry.count + "</a><br>";
+					vm.oldData = "";
+					angular.forEach(data.data, function(entry){
+						vm.oldData += "<a ng-click=\"vm.clickOldData('" + entry._id + "')\">Owner: " + entry.owner + " - Repo: " + entry.repo + " - Count: " + entry.count + "</a><br>";
 						vm.oldDataDict[entry._id] = entry;
-				});
-					vm.oldData = str;
+					});
+				})
+				.catch(function(err){
+					vm.err = err.data;
 				});
 			}
 
+			//Triggered when the user click on a old query
 			vm.clickOldData = function(id){
 				vm.result = JSON.parse(vm.oldDataDict[id].data);
 				parseResultForChart();
 			}
 
+			//Triggered when the user click the Save button
 			vm.submit = function(){
 				vm.err = "";
 				vm.data = [[0]];
@@ -87,16 +85,33 @@
 					vm.err = "Please specify a owner and a repo.";
 					return;
 				}
+				//Get data from the API
 				Page2Service.getDataOnGithub(vm.owner, vm.repo)
 				.then(function(data){
-					vm.result = data;
+					vm.result = data.data;
 				})
+				//Refresh chart
 				.then(parseResultForChart)
-				.then(function(){
-					vm.initData();
+				//Refresh old queries
+				.then(vm.getOldQueries)
+				.catch(function(err){
+					vm.err = err.data;
 				});
 			}
 
+			//Delete the old query in the API
+			vm.deleteOldData = function(){
+				Page2Service.deleteOldData()
+				.then(function(res){
+					vm.resultDelete = "<span ng-style=\"{'color': 'green'}\">" + res.data + "</span>";
+				})
+				.then(vm.getOldQueries)
+				.catch(function(err){
+					vm.resultDelete = "<span ng-style=\"{'color': 'orange'}\">" + err.data + "</span>";
+				});
+			}
+
+			//Parse the vm.result field to fit to the graph chart
 			function parseResultForChart(){
 				var graphArray = {};
 				angular.forEach(vm.result, function(value, key){

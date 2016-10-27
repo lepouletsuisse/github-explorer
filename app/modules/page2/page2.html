@@ -2,8 +2,12 @@
 
     <h2>Give the owner and the repo that you want on Github</h2>
 
-    <h3>Here it is a list of your old queries</h3>
-    <div compile="vm.oldData" ng-init="vm.initData()"></div>
+    <h3>Here it is a list of your old queries!</h3>
+    <div ng-style="{'font-weight': 'bold'}">You can click on one to get the data without doing a request to GitHub</div>
+    <div compile="vm.oldData" ng-init="vm.getOldQueries()"></div><br>
+
+    <div ng-style="{'color': 'orange'}">Delete all the old queries: <button ng-click="vm.deleteOldData()">Delete</button></div>
+    <div compile="vm.resultDelete"></div>
 
     <form name="form" ng-submit="vm.submit()">
         <label>Owner: </label><input ng-model="vm.owner" name="owner" type="text">
