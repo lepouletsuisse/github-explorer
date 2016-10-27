@@ -22,7 +22,7 @@
 				getDataOnGithub: function(owner, repo){
 					return $http({url: "/api", method: "POST", params: {"owner": owner, "repo": repo}})
 					.success(function(res){
-						return res.data;
+						return res;
 					})
 					.error(function(data, status, headers, config, statusText){
 						vm.err = data;					
@@ -31,7 +31,7 @@
 				getOldData: function(){
 					return $http({url: "/api", method: "GET"})
 					.success(function(res){
-						return res.data;
+						return res;
 					})
 					.error(function(data, status, headers, config, statusText){
 						vm.err = data;
