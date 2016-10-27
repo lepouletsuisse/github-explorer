@@ -1,7 +1,5 @@
 # Labo01: Mining data in GitHub
 
-[TOC]
-
 ##Purpose of the application
 This application will show you a graphic with the commit over time of a repository that you have specified. The Y-Axe is the number of commit in one date and the X-Axe is the dates. I only display the date with a commit because date without commit are note really interessting.
 
@@ -36,16 +34,17 @@ The controller will manage the HTML view by setting the variable of the view and
 #####Service
 The Page2Service will do the link between my front-end and back-end by sending the request asked by the user to the back-end and get the response to send it again to the controller.
 #####Route
-Everything after "/#!/" URI is redirect either on the correct page (Page1, Page2 or Page3) or is redirected on Page1 if the URL specified is not correct.
+Everything after "/#!/" URI is redirect on Page1, Page2 or Page3 if the URL is correct or Page1 otherwise.
 
 ###Back-end
 #####API - Explication
 My API is quite simple and has only 1 endpoint with 3 different type of request on it. I choosed this method instead of having different endpoint because the logic of the app allowed me to do it like this. I only needed to POST an owner/repo on the server to get the information back, GET all the old queries and DELETE all the old queries. We can easily imagine other endpoints if we want to do a user system or to give the possibility to manage query.
 
 #####API - Endpoint
-Here it is a table about my api. The URI for my API is {baseURI}/api and only accept 3 type of CRUD operations:
-|  Endpoint | Description  | Parameters  |
+Here it is a table about my API. The URI for my API is {baseURI}/api and only accept 3 type of CRUD operations:
+
+|Endpoint|Description|Parameters|
 |:---:|:---:|:---:|
-| GET /api  |  Get all the old queries store in the DB |  - |
-| POST /api  | Get the data of the combinaison owner/repo gave in the parameter  | ?owner=\<theOwner\>&repo=\<theRepo\> |
-| DELETE /api  |  Delete all the collections of old queries | -  |
+|GET /api|Get all the old queries store in the DB|-|
+|POST /api|Get the data for the combinaison owner/repo gave in the parameter|`?owner=<theOwner>&repo=<theRepo>`|
+|DELETE /api|Delete the collection of old queries|-|
