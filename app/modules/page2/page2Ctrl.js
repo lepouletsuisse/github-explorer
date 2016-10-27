@@ -72,6 +72,7 @@
 
 			//Triggered when the user click on a old query
 			vm.clickOldData = function(id){
+				vm.resultDelete = "";
 				vm.result = JSON.parse(vm.oldDataDict[id].data);
 				parseResultForChart();
 			}
@@ -81,6 +82,7 @@
 				vm.err = "";
 				vm.data = [[0]];
 				vm.labels = [""];
+				vm.resultDelete = "";
 				if(vm.owner == "" || vm.repo == ""){
 					vm.err = "Please specify a owner and a repo.";
 					return;
@@ -101,6 +103,7 @@
 
 			//Delete the old query in the API
 			vm.deleteOldData = function(){
+				vm.resultDelete = "";
 				Page2Service.deleteOldData()
 				.then(function(res){
 					vm.resultDelete = "<span ng-style=\"{'color': 'green'}\">" + res.data + "</span>";
