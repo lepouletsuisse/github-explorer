@@ -30,9 +30,12 @@
 				},
 				getOldData: function(){
 					return $http({url: "/api", method: "GET"})
-					.then(function(res){
+					.success(function(res){
 						return res.data;
-					});
+					})
+					.error(function(data, status, headers, config, statusText){
+						console.log("data: " + data + " // status: " + status + " // headers: " + headers + " // config: " + config + " // statusText: " + statusText)
+					});;
 				}
 
 			};

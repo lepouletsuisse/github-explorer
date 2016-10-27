@@ -91,7 +91,7 @@ function openDatabaseConnection(context){
         })
         .catch(function(err){
             console.log("Error while connecting! " + err);
-            context.errMessage = "Internal server error!";
+            context.errMessage = "Internal server error! (DB open)";
             throw err;
         });
 }
@@ -105,7 +105,7 @@ function getCollection(context){
     var collection = context.db.collection(collectionName);
     if(collection == undefined){
         console.log("Error while connecting! " + err);
-        context.errMessage = "Internal server error!";
+        context.errMessage = "Internal server error! (collection)";
         throw new Error("Unable to get collection " + collectionName + " from the DB!");
     }
     context.collection = collection;
@@ -156,7 +156,7 @@ function insertData(context){
     })
     .catch(function(err){
         console.log("Error while inserting! " + err);
-        context.errMessage = "Internal server error!";
+        context.errMessage = "Internal server error! (Insert)";
         throw err;
     });
 }
@@ -194,7 +194,7 @@ function updateData(context){
     })
     .catch(function(err){
         console.log("Error while updating! " + err);
-        context.errMessage = "Internal server error!";
+        context.errMessage = "Internal server error! (Update)";
         throw err;
     });
 }
@@ -210,7 +210,7 @@ function queryData(context){
     })
     .catch(function(err){
         console.log("Error while trying to find the data in the DB! " + err);
-        context.errMessage = "Internal server error!";
+        context.errMessage = "Internal server error! (find one)";
         throw err;
     });
 }
@@ -227,7 +227,7 @@ function queryAllData(context){
     })
     .catch(function(err){
         console.log("Error while trying to find the data in the DB! " + err);
-        context.errMessage = "Internal server error!";
+        context.errMessage = "Internal server error! (find all)";
         throw err;
     });
 }
@@ -244,7 +244,7 @@ function closeDatabaseConnection(context){
         })
         .catch(function(err){
             console.log("Error while closing the DB! " + err);
-            context.errMessage = "Internal server error!";
+            context.errMessage = "Internal server error! (close)";
             throw err;
         })
 }

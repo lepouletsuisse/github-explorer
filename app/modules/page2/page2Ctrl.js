@@ -92,9 +92,6 @@
 					vm.result = data;
 				})
 				.then(parseResultForChart)
-				.catch(function(err){
-					vm.err = "A probleme occured while your querry! Your repo/owner is probably wrong!";
-				})
 				.then(function(){
 					vm.initData();
 				});
