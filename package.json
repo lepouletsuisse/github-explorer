@@ -21,11 +21,9 @@
     "express": "^4.14.0",
     "glob": "~4.0.5",
     "grunt-cli": "~0.1.13",
-    "mangodb": "^1.0.0",
     "mongodb": "^2.2.11",
     "request": "^2.76.0",
-    "request-promise": "^4.1.1",
-    "require-promise": "^1.0.1"
+    "request-promise": "^4.1.1"
   },
   "devDependencies": {
     "grunt": "~0.4.1",

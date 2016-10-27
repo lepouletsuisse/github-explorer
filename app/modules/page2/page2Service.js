@@ -21,7 +21,7 @@
 			return {
 				getDataOnGithub: function(owner, repo){
 					return $http({url: "/api", method: "POST", params: {"owner": owner, "repo": repo}})
-					.then(function(res){
+					.success(function(res){
 						return res.data;
 					})
 					.error(function(data, status, headers, config, statusText){
